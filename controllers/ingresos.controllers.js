@@ -1,4 +1,4 @@
-import { obtenerIngresos , vehiculosRegistrados , agregarIngresos } from '../models/ingresos.model.js'
+import { obtenerIngresos , vehiculosRegistrados , agregarIngresos , verificarDisponibilidad , removerIngreso } from '../models/ingresos.model.js'
 import { agregarVehiculo } from '../models/vehiculos.model.js'
 
 export async function obtenerIngresosGET(req , res){
@@ -23,9 +23,9 @@ export async function agregarIngreso( req , res ){
 try{
 
 	const { placa , tipo } = req.body 
-
+	// verficamos si el vehiculo ya se encuentra registrado 
 	const vehiculo = await vehiculosRegistrados(placa)
-
+	// Si no lo esta lo registramos y ingresamos el vehiculo 
 	if(!vehiculo.length){
 		
 		const data = await agregarVehiculo({ placa , tipo })
@@ -36,8 +36,15 @@ try{
 			"data" : resp
 		})
 	}
-
+	// obtenemos el id del vehiculo 
 	const id = await vehiculo[0].id
+	const disponibilidad = await verificarDisponibilidad(id)
+	if(disponibilidad.length){
+		return res.status(409).json({
+			"message" : "Ya este vehiculo se ingreso a la base de datos "
+		})
+	}
+
 	const data = await agregarIngresos(id)
 
 	return res.status(200).json({
@@ -54,3 +61,27 @@ try{
 
 }
 }
+
+export async function registrarSalida( req , res ){
+try{
+	const { id } = req.params
+
+	const result = await removerIngreso(id) 
+
+	if(result.affectedRows === 0){
+		return res.status(404).json({
+			"message" : "Este vehiculo no se ha ingresado"
+		})
+	}
+	return res.status(200).json({
+		"message" : "el vehiculo se ha desactivado de nuestros ingresos "
+	})
+}catch(e){
+
+	return res.status(500).json({
+		"message": "Algo ha salido mal al intentar eliminar el ingreso " , 
+		"data" : e
+	})
+}
+}
+
