@@ -3,7 +3,7 @@ import conection from '../database/config.db.js'
 export async function obtenerIngresos(){
 
 	const [rows] = await conection.query(`SELECT * FROM ingresos `)
-	return rows 
+	return rows
 
 }
 
@@ -17,9 +17,9 @@ export async function vehiculosRegistrados(placa){
 
 export async function agregarIngresos( idVehiculo ){
 
-	const [rows] = await conection.query('INSERT INTO ingresos (vehiculo_id , hora_entrada) VALUES (?, NOW())' , 
+	const [rows] = await conection.query('INSERT INTO ingresos (vehiculo_id , hora_entrada) VALUES (?, NOW())' ,
 		[idVehiculo])
-	return rows 
+	return rows
 }
 
 export async function verificarDisponibilidad( idVehiculo ){
@@ -32,16 +32,6 @@ export async function verificarDisponibilidad( idVehiculo ){
 export async function removerIngreso( idVehiculo ){
 
 	const [result] = await conection.query('UPDATE ingresos SET hora_salida = NOW() WHERE vehiculo_id = ? AND hora_salida IS NULL ' , [idVehiculo])
-	return result 
+	return result
 
 }
-
-
-
-
-
-
-
-
-
-
